@@ -1,4 +1,6 @@
-#!/opt/local/bin/perl5.28
+#!/usr/bin/perl -w
+# -*- perl -*-
+
 =head1 NAME
 
 Munin monitoring plugin for Apache CouchDB.
@@ -78,6 +80,7 @@ special characters. Example:
     env.username  admin
     env.password  s3cR1t
     env.monitor_databases  yes
+    env.monitor_active_tasks yes
     env.monitor_rexi   yes
     env.monitor_fabric   yes
     env.databases  mailbox, db/with/slashes, data+ba$ed
