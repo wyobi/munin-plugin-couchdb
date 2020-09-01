@@ -679,13 +679,10 @@ graph_category couchdb
 graph_scale no
 buffered.draw AREA
 buffered.label rexi messages buffered
-buffered.type DERIVE
 buffered.min 0
 down.label rexi_DOWN messages handled
-down.type DERIVE
 down.min 0
 dropped.label rexi messages dropped from buffers
-dropped.type DERIVE
 dropped.min 0
 EOF
     } elsif (defined($json)) {
@@ -719,13 +716,10 @@ graph_category couchdb
 graph_scale no
 init_stream.draw AREA
 init_stream.label rexi stream initialization timeouts
-init_stream.type DERIVE
 init_stream.min 0
 stream.label rexi stream timeouts
-stream.type DERIVE
 stream.min 0
 wait_for_ack.label rexi stream timeouts while waiting for acks
-wait_for_ack.type DERIVE
 wait_for_ack.min 0
 EOF
     } elsif (defined($json)) {
@@ -759,10 +753,8 @@ graph_category couchdb
 graph_scale no
 worker.draw AREA
 worker.label fabric worker timeouts
-worker.type DERIVE
 worker.min 0
 open_shard.label fabric open shard timeouts
-open_shard.type DERIVE
 open_shard.min 0
 EOF
     } elsif (defined($json)) {
