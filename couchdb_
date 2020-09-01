@@ -343,7 +343,7 @@ sub clients_requesting_changes {
     if ($mode eq 'config') {
         my $desc = $json->{'couchdb'}->{'httpd'}
                         ->{'clients_requesting_changes'}
-                        ->{'description'};
+                        ->{'desc'};
         $desc =~ s/^number of //;
         print <<"EOF";
 graph_title CouchDB continuous changes listeners
@@ -453,7 +453,7 @@ graph_vlabel requests / \${graph_period}
 graph_category couchdb
 EOF
         foreach (@request_types) {
-            my $desc = $json->{'couchdb'}->{'httpd'}->{$_}->{'description'};
+            my $desc = $json->{'couchdb'}->{'httpd'}->{$_}->{'desc'};
             $desc =~ s/^number of //;
             if ($_ eq 'requests'){
               say "$_.draw AREA";
@@ -492,7 +492,7 @@ graph_vlabel responses / \${graph_period}
 graph_category couchdb
 EOF
         foreach (@http_codes) {
-            my $desc = $json->{'couchdb'}->{'httpd_status_codes'}->{$_}->{'description'};
+            my $desc = $json->{'couchdb'}->{'httpd_status_codes'}->{$_}->{'desc'};
             $desc =~ s/^number of //;
             $desc =~ s/ responses$//;
             print <<"EOF";
@@ -619,10 +619,9 @@ EOF
         foreach(@$samples){
             my $json = get_json_resp("$CLUSTERURL/_stats/couchdb/request_time?range=$_");
             if (defined($json)) {
-                my $stdev = $json->{'couchdb'}
-                                 ->{'request_time'}
-                                 ->{'stddev'} || 0;
-                my $mean = $json->{'couchdb'}->{'request_time'}->{'mean'} || 0;
+                my $stdev = $json->{'value'}
+                                 ->{'standard_deviation'} || 0;
+                my $mean = $json->{'value'}->{'arithmetic_mean'} || 0;
                 say "stddev$_.value $stdev";
                 say "mean$_.value $mean";
             } else {
@@ -730,11 +729,11 @@ wait_for_ack.type DERIVE
 wait_for_ack.min 0
 EOF
     } elsif (defined($json)) {
-        my $init_stream = $json->{'rexi'}->{'timeout'}
+        my $init_stream = $json->{'rexi'}->{'streams'}->{'timeout'}
                         ->{'init_stream'}->{'value'} || 0;
-        my $stream = $json->{'rexi'}->{'timeout'}
+        my $stream = $json->{'rexi'}->{'streams'}->{'timeout'}
                           ->{'stream'}->{'value'} || 0;
-        my $wait_for_ack = $json->{'rexi'}->{'timeout'}
+        my $wait_for_ack = $json->{'rexi'}->{'streams'}->{'timeout'}
                           ->{'wait_for_ack'}->{'value'} || 0;
         say "init_stream.value $init_stream";
         say "stream.value $stream";
@@ -924,8 +923,8 @@ disk_size.label disk size overhead
 disk_size.min 0
 EOF
     } elsif (defined($json)) {
-        my $data_size = ($json->{'data_size'} || 0);
-        my $overhead = ($json->{'disk_size'} || 0) - $data_size;
+        my $data_size = ($json->{'sizes'}->{'active'} || 0);
+        my $overhead = ($json->{'sizes'}->{'file'} || 0) - $data_size;
         say "data_size.value $data_size";
         say "disk_size.value $overhead";
     } else {
