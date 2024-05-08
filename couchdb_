@@ -236,6 +236,8 @@ sub main {
 
     do_stats($mode);
 
+    do_system($mode);
+
     if ($MONITOR_ACTIVE_TASKS) {
         do_active_tasks($mode);
     }
@@ -309,6 +311,13 @@ sub do_stats {
     }
 }
 
+sub do_system {
+    my $mode = shift;
+    my $json = get_json_resp("$CLUSTERURL/_system");
+
+    uptime($json, $mode);
+    internal_replication_jobs($json, $mode);
+}
 
 sub do_active_tasks {
     my $mode = shift;
@@ -324,7 +333,6 @@ sub do_couchdb_users {
     couchdb_users(get_json_resp("/$dbname"), $mode);
 }
 
-
 sub do_databases {
     my $mode = shift;
     while($DATABASES =~ /([a-z][a-z0-9+\/()\$_-]+)/g) {
@@ -335,6 +343,50 @@ sub do_databases {
     }
 }
 
+sub uptime {
+    my ($json, $mode) = @_;
+
+    say "multigraph couchdb_uptime";
+    if ($mode eq 'config'){
+        print <<"EOF";
+graph_title CouchDB database uptime
+graph_args --base 1000 --lower-limit 0
+graph_vlabel Minutes
+graph_category couchdb
+couchdb_uptime.draw AREASTACK
+couchdb_uptime.label Uptime since restart
+couchdb_uptime.min 0
+EOF
+    } elsif (defined($json)) {
+        my $uptime = $json->{'uptime'}/60 || 0;
+        say "couchdb_uptime.value $uptime";
+    } else {
+        say "couchdb_uptime.value U";
+    }
+}
+
+
+sub internal_replication_jobs {
+    my ($json, $mode) = @_;
+
+    say "multigraph couchdb_internal_replication_jobs";
+    if ($mode eq 'config'){
+        print <<"EOF";
+graph_title CouchDB database internal replication jobs
+graph_args --base 1000 --lower-limit 0
+graph_vlabel Count of internal replication jobs
+graph_category couchdb
+internal_replication_jobs.draw AREASTACK
+internal_replication_jobs.label Active Replication Jobs
+internal_replication_jobs.min 0
+EOF
+    } elsif (defined($json)) {
+        my $internal_replication_jobs = $json->{'internal_replication_jobs'} || 0;
+        say "internal_replication_jobs.value $internal_replication_jobs";
+    } else {
+        say "internal_replication_jobs.value U";
+    }
+}
 
 sub clients_requesting_changes {
     my ($json, $mode) = @_;
